@@ -1,0 +1,179 @@
+bus-reservation-system
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── example
+│   │   │           └── busreservation
+│   │   │               ├── controller
+│   │   │               ├── model
+│   │   │               ├── repository
+│   │   │               └── service
+│   │   ├── resources
+│   │   │   ├── application.properties
+│   │   │   └── static
+│   │   └── META-INF
+└── pom.xml
+
+package com.example.busreservation.model;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class BusReservation {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String passengerName;
+    private String busRoute;
+    private String date;
+    private String seatNumber;
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPassengerName() {
+        return passengerName;
+    }
+
+    public void setPassengerName(String passengerName) {
+        this.passengerName = passengerName;
+    }
+
+    public String getBusRoute() {
+        return busRoute;
+    }
+
+    public void setBusRoute(String busRoute) {
+        this.busRoute = busRoute;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getSeatNumber() {
+        return seatNumber;
+    }
+
+    public void setSeatNumber(String seatNumber) {
+        this.seatNumber = seatNumber;
+    }
+}
+
+package com.example.busreservation.repository;
+
+import com.example.busreservation.model.BusReservation;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BusReservationRepository extends JpaRepository<BusReservation, Long> {
+}
+
+package com.example.busreservation.service;
+
+import com.example.busreservation.model.BusReservation;
+import com.example.busreservation.repository.BusReservationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class BusReservationService {
+
+    @Autowired
+    private BusReservationRepository reservationRepository;
+
+    public List<BusReservation> getAllReservations() {
+        return reservationRepository.findAll();
+    }
+
+    public Optional<BusReservation> getReservationById(Long id) {
+        return reservationRepository.findById(id);
+    }
+
+    public BusReservation createReservation(BusReservation reservation) {
+        return reservationRepository.save(reservation);
+    }
+
+    public void deleteReservation(Long id) {
+        reservationRepository.deleteById(id);
+    }
+}
+
+package com.example.busreservation.controller;
+
+import com.example.busreservation.model.BusReservation;
+import com.example.busreservation.service.BusReservationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/reservations")
+public class BusReservationController {
+
+    @Autowired
+    private BusReservationService reservationService;
+
+    @GetMapping
+    public List<BusReservation> getAllReservations() {
+        return reservationService.getAllReservations();
+    }
+
+    @GetMapping("/{id}")
+    public Optional<BusReservation> getReservationById(@PathVariable Long id) {
+        return reservationService.getReservationById(id);
+    }
+
+    @PostMapping
+    public BusReservation createReservation(@RequestBody BusReservation reservation) {
+        return reservationService.createReservation(reservation);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteReservation(@PathVariable Long id) {
+        reservationService.deleteReservation(id);
+    }
+}
+
+Application Properties
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+spring.jpa.hibernate.ddl-auto=update
+
+Main Application Class:
+package com.example.busreservation;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class BusReservationApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(BusReservationApplication.class, args);
+    }
+}
